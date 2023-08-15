@@ -28,6 +28,10 @@ mongoose
     console.log(err);
   });
 
+import cors from "cors";
+
+app.use(cors());
+
 app.use("/api", route);
 
 app.get("/", (req: Request, res: Response) => {
