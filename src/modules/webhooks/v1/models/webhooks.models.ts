@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import paginate from "mongoose-paginate-v2";
 import { IWebhook } from "../interface";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const WebhookSchema = new mongoose.Schema<IWebhook>(
   {
@@ -29,11 +30,11 @@ const WebhookSchema = new mongoose.Schema<IWebhook>(
   { timestamps: true }
 );
 
-WebhookSchema.plugin(paginate);
+WebhookSchema.plugin(aggregatePaginate);
 
 interface WebhookDocument extends mongoose.Document, IWebhook {}
 
 export const Webhook = mongoose.model<
   WebhookDocument,
-  mongoose.PaginateModel<WebhookDocument>
+  mongoose.AggregatePaginateModel<WebhookDocument>
 >("Webhooks", WebhookSchema);

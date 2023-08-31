@@ -70,18 +70,52 @@ export const get = async (
   res: Response
 ) => {
   try {
-    const webhook = await Webhook.paginate(
-      req.query.type
-        ? {
-            type: req.query.type,
-          }
-        : {},
+    let matchStage: any = {};
 
+    if (req.query.type) {
+      matchStage.type = req.query.type;
+    }
+    const aggregate = Webhook.aggregate([
       {
-        limit: req.query.limit ? req.query.limit : 10,
-        page: req.query.page ? req.query.page : 0,
-      }
-    );
+        $match: matchStage,
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            type: "$type",
+            username: "$username",
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$_id.userId",
+            username: "$_id.username",
+          },
+          types: {
+            $push: {
+              type: "$_id.type",
+              count: "$count",
+            },
+          },
+          total: { $sum: "$count" },
+        },
+      },
+      {
+        $sort: {
+          total: -1,
+        },
+      },
+    ]);
+
+    const webhook = await Webhook.aggregatePaginate(aggregate, {
+      page: req.query.page ? req.query.page : 1,
+      limit: req.query.limit ? req.query.limit : 10,
+    });
+
     res.json({
       success: true,
       data: webhook,

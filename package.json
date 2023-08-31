@@ -39,6 +39,7 @@
 		"express": "^4.17.3",
 		"helmet": "^5.0.2",
 		"mongoose": "^7.4.3",
+		"mongoose-aggregate-paginate-v2": "^1.0.6",
 		"mongoose-paginate-v2": "^1.7.31",
 		"mysql2": "^3.6.0",
 		"rimraf": "^3.0.2",
@@ -48,6 +49,7 @@
 	},
 	"devDependencies": {
 		"@types/cors": "^2.8.13",
+		"@types/mongoose-aggregate-paginate-v2": "^1.0.9",
 		"concurrently": "^7.0.0",
 		"nodemon": "^2.0.15"
 	}
