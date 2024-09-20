@@ -97,7 +97,15 @@ async function run() {
 	return { totalCount, commitCount, issueCount };
 }
 
-console.log("Starting...");
-const { totalCount, commitCount, issueCount } = await run();
-console.log(totalCount);
-console.log("Ended");
+export default run;
+
+cron.schedule("* * * * *", async () => {
+	console.log("Starting...");
+	const { totalCount, commitCount, issueCount } = await run();
+
+	await Bun.write("data/total-count.json", JSON.stringify(totalCount));
+	await Bun.write("data/commit-count.json", JSON.stringify(commitCount));
+	await Bun.write("data/issue-count.json", JSON.stringify(issueCount));
+
+	console.log("Ended");
+});
