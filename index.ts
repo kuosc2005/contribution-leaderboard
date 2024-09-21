@@ -38,7 +38,11 @@ const server = Bun.serve({
     };
 
     return new Response(JSON.stringify(res), {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      },
     });
   },
 });
