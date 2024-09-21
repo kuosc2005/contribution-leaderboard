@@ -12,10 +12,34 @@ cron.schedule("0 0 * * *", async () => {
   console.log("Ended counting");
 });
 
+// TODO: add pagination
 const server = Bun.serve({
   port: process.env.PORT || 3000,
-  fetch(_req) {
-    return new Response("Bun!");
+  async fetch(_req) {
+    const dataFile = Bun.file("data.json", { type: "application/json" });
+    const dataString = await dataFile.text();
+    const data: any[] = JSON.parse(dataString);
+
+    const res = {
+      success: true,
+      message: "Success",
+      data: {
+        docs: data,
+        totalDocs: data.length,
+        limit: data.length,
+        page: 1,
+        totalPages: 1,
+        pagingCounter: 1,
+        hasPrevPage: false,
+        hasNextPage: false,
+        prevPage: null,
+        nextPage: null,
+      },
+    };
+
+    return new Response(JSON.stringify(res), {
+      headers: { "Content-Type": "application/json" },
+    });
   },
 });
 
