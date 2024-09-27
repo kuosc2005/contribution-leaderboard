@@ -1,5 +1,7 @@
 # Contribution Leaderboard
 
+It is the leaderboard of the contributors of KUOSC and KUCC open source projects.
+
 ## To install dependencies:
 
 ```bash
@@ -10,8 +12,16 @@ bun install
 
 Make sure to add GitHub token as your environment variable. Please check `.env.example`.
 
+For the first time usage, please fetch the data. To fetch the data,
+
+```
+bun fetch
+```
+
+When you serve, the contributions are fetch once a day. To serve, run
+
 ```bash
-bun run index.ts
+bun serve
 ```
 
 ## API
