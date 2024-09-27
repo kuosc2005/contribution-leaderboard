@@ -2,6 +2,10 @@
   "name": "contribution-leaderboard",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "fetch": "bun run fetch.ts",
+    "serve": "bun run index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node-cron": "^3.0.11"
