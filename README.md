@@ -1,4 +1,4 @@
-# contribution-leaderboard
+# Contribution Leaderboard
 
 To install dependencies:
 
