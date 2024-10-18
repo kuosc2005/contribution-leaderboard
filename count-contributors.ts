@@ -1,10 +1,7 @@
 import blocklist from "./blocklist";
 import repos from "./repos";
-
-// Fetch headers
-const headers = {
-  Authorization: `token ${process.env.TOKEN}`,
-};
+import getAllCommits from "./utils/get-commits";
+import getAllIssues from "./utils/get-issues";
 
 /// Get total, commit and issue count inside an organization or a user (username)
 async function getCountBasedOnOrg(
@@ -18,57 +15,42 @@ async function getCountBasedOnOrg(
 
   for (const repo of repos) {
     // Fetch commits for the repo
-    const res = await fetch(
-      `https://api.github.com/repos/${repo}/commits?since=${countStartDate.toISOString()}&per_page=500`,
-      { headers },
-    );
-    const data = await res.json();
+    const allCommits = await getAllCommits(repo, countStartDate);
+    for (const commit of allCommits) {
+      const author = commit.author;
+      if (blocklist.includes(author.login)) {
+        return;
+      }
 
-    // Update the commit count
-    if (res.status === 200) {
-      for (const commit of data) {
-        const author = commit.author;
-
-        if (blocklist.includes(author.login)) {
-          return;
+      if (author) {
+        const authorName = author.login;
+        const userId = author.id;
+        if (!userDetails[authorName]) {
+          userDetails[authorName] = { userId, username: authorName };
         }
 
-        if (author) {
-          const authorName = author.login;
-          const userId = author.id;
-          if (!userDetails[authorName]) {
-            userDetails[authorName] = { userId, username: authorName };
-          }
-
-          commitCount[authorName] = (commitCount[authorName] || 0) + 1;
-        }
+        commitCount[authorName] = (commitCount[authorName] || 0) + 1;
       }
     }
 
     // Fetch issues for the repo
-    const issueRes = await fetch(
-      `https://api.github.com/repos/${repo}/issues?since=${countStartDate.toISOString()}`,
-      { headers },
-    );
-    const issueData = await issueRes.json();
+    const allIssues = await getAllIssues(repo, countStartDate);
 
     // Update the issue count
-    if (issueRes.status === 200) {
-      for (const issue of issueData) {
-        const user = issue.user;
-        const userName = user.login;
+    for (const issue of allIssues) {
+      const user = issue.user;
+      const userName = user.login;
 
-        if (blocklist.includes(userName)) {
-          return;
-        }
-
-        const userId = user.id;
-        if (!userDetails[userName]) {
-          userDetails[userName] = { userId, username: userName };
-        }
-
-        issueCount[userName] = (issueCount[userName] || 0) + 1;
+      if (blocklist.includes(userName)) {
+        return;
       }
+
+      const userId = user.id;
+      if (!userDetails[userName]) {
+        userDetails[userName] = { userId, username: userName };
+      }
+
+      issueCount[userName] = (issueCount[userName] || 0) + 1;
     }
   }
 }
