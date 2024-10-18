@@ -1,3 +1,4 @@
+import blocklist from "./blocklist";
 import repos from "./repos";
 
 // Fetch headers
@@ -27,6 +28,11 @@ async function getCountBasedOnOrg(
     if (res.status === 200) {
       for (const commit of data) {
         const author = commit.author;
+
+        if (blocklist.includes(author.login)) {
+          return;
+        }
+
         if (author) {
           const authorName = author.login;
           const userId = author.id;
@@ -51,6 +57,11 @@ async function getCountBasedOnOrg(
       for (const issue of issueData) {
         const user = issue.user;
         const userName = user.login;
+
+        if (blocklist.includes(userName)) {
+          return;
+        }
+
         const userId = user.id;
         if (!userDetails[userName]) {
           userDetails[userName] = { userId, username: userName };
