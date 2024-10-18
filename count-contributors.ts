@@ -1,5 +1,6 @@
 import blocklist from "./blocklist";
 import repos from "./repos";
+import getAllCommits from "./utils/get-commits";
 
 // Fetch headers
 const headers = {
@@ -17,37 +18,27 @@ async function getCountBasedOnOrg(
   const countStartDate = new Date(`${currentDate}-01-01`);
 
   for (const repo of repos) {
-    // Fetch commits for the repo
-    const res = await fetch(
-      `https://api.github.com/repos/${repo}/commits?since=${countStartDate.toISOString()}&per_page=500`,
-      { headers },
-    );
-    const data = await res.json();
+    const allCommits = await getAllCommits(repo, countStartDate);
+    for (const commit of allCommits) {
+      const author = commit.author;
+      if (blocklist.includes(author.login)) {
+        return;
+      }
 
-    // Update the commit count
-    if (res.status === 200) {
-      for (const commit of data) {
-        const author = commit.author;
-
-        if (blocklist.includes(author.login)) {
-          return;
+      if (author) {
+        const authorName = author.login;
+        const userId = author.id;
+        if (!userDetails[authorName]) {
+          userDetails[authorName] = { userId, username: authorName };
         }
 
-        if (author) {
-          const authorName = author.login;
-          const userId = author.id;
-          if (!userDetails[authorName]) {
-            userDetails[authorName] = { userId, username: authorName };
-          }
-
-          commitCount[authorName] = (commitCount[authorName] || 0) + 1;
-        }
+        commitCount[authorName] = (commitCount[authorName] || 0) + 1;
       }
     }
 
     // Fetch issues for the repo
     const issueRes = await fetch(
-      `https://api.github.com/repos/${repo}/issues?since=${countStartDate.toISOString()}`,
+      `https://api.github.com/repos/${repo}/issues?since=${countStartDate.toISOString()}&per_page=5000`,
       { headers },
     );
     const issueData = await issueRes.json();
