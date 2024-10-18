@@ -1,13 +1,13 @@
 /// Returns all commits from a given repository since a given date
 /// @param repo - The repository to fetch commits from
 /// @param countStartDate - The date to start counting commits from
-async function getAllCommits(repo: string, countStartDate: Date) {
-  let allCommits: any[] = [];
+async function getAllIssues(repo: string, countStartDate: Date) {
+  let allIssues: any[] = [];
   let page = 1;
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const url = `https://api.github.com/repos/${repo}/commits?since=${countStartDate.toISOString()}&per_page=100&page=${page}`;
+    const url = `https://api.github.com/repos/${repo}/issues?per_page=100&page=${page}&since=${countStartDate.toISOString()}`;
 
     const response = await fetch(url, {
       headers: {
@@ -16,11 +16,11 @@ async function getAllCommits(repo: string, countStartDate: Date) {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch commits: ${response.statusText}`);
+      throw new Error(`Failed to fetch issues: ${response.statusText}`);
     }
 
-    const commits = await response.json();
-    allCommits = allCommits.concat(commits);
+    const issues = await response.json();
+    allIssues = allIssues.concat(issues);
 
     // Check if there is a next page by looking at the 'Link' header
     const linkHeader = response.headers.get("link");
@@ -31,7 +31,7 @@ async function getAllCommits(repo: string, countStartDate: Date) {
     }
   }
 
-  return allCommits;
+  return allIssues;
 }
 
-export default getAllCommits;
+export default getAllIssues;
